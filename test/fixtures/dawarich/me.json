@@ -1,0 +1,30 @@
+{
+  "user": {
+    "id": 2,
+    "email": "test@example.org",
+    "theme": "dark",
+    "created_at": "2026-10-19T18:24:56.842+02:00",
+    "updated_at": "2026-10-19T18:24:56.874+02:00",
+    "settings": {
+      "timezone": "Europe/Paris",
+      "maps": { "distance_unit": "km" },
+      "fog_of_war_meters": 100,
+      "meters_between_routes": 1000,
+      "preferred_map_layer": "OpenStreetMap",
+      "speed_colored_routes": false,
+      "points_rendering_mode": "raw",
+      "minutes_between_routes": 60,
+      "time_threshold_minutes": 30,
+      "merge_threshold_minutes": 15,
+      "live_map_enabled": true,
+      "route_opacity": 0.6,
+      "immich_url": null,
+      "photoprism_url": null,
+      "visits_suggestions_enabled": true,
+      "speed_color_scale": null,
+      "fog_of_war_threshold": 50,
+      "globe_projection": true
+    }
+  },
+  "features": { "reverse_geocoding": false, "family": true }
+}
