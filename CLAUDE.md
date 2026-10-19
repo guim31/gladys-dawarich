@@ -16,8 +16,8 @@ its only runtime dependency. It started from the official JavaScript template.
 ```bash
 npm install
 npm test                                  # node --test, the built-in runner
-node --test test/devices.test.js          # one file
-node --test --test-name-pattern "plug"    # tests whose name matches
+node --test test/hub.test.js              # one file
+node --test --test-name-pattern "widget"  # tests whose name matches
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
 npm run format                            # Prettier, fix in place
@@ -32,15 +32,19 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/app.js                        registers every handler on the SDK (or the fake Gladys)
+src/hub.js                        the Dawarich account: reads, device, states, scene events, status
+src/devices.js                    the Dawarich device and its states (external ids)
+src/widgets.js                    the "Travels" widget (manifest `widgets`)
+src/texts.js                      every text of the container, in en/fr/de/es
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/store.js                      /data/dawarich-state.json: what the triggers already saw
+src/dawarich/client.js            the REST calls (read only)
+src/dawarich/model.js             stats of the month/year, distance of a track
+src/dawarich/countries.js         ISO alpha-3 -> localized country name
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
+test/                             node --test, against the SDK's fake Gladys and a fake Dawarich
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +74,9 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German ("du") and Spanish
+  ("usted"): action messages, widget, feature names, manifest texts, and
+  `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +238,31 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Dawarich (vérifié sur 1.16.0, 19/10/2026)
+
+- API : `Authorization: Bearer <api_key>` (ou `?api_key=`). Une mauvaise clé donne un 401 **sans corps** ; 402/403
+  existent pour Dawarich Cloud (abonnement, plan Pro) et sont traités comme un refus de la clé.
+- `/api/v1/stats` : kilomètres **entiers** (division entière côté serveur), recalculés par le job horaire
+  `BulkStatsCalculatingJob` (Sidekiq). Ses pays et villes viennent des `toponyms`, donc du **géocodage inverse** :
+  sans lui (cas par défaut d'une instance neuve, `features.reverse_geocoding: false` dans `/users/me`), ils restent à 0.
+  `user.countries_visited` est en plus mis en cache un jour.
+- `/api/v1/countries/visited?start_at&end_at` lit le `country_id` des points (frontières PostGIS, sans géocodage) :
+  c'est la source des pays de l'intégration. `start_at` et `end_at` sont obligatoires (422 sinon).
+- `/api/v1/points?slim=true` : `latitude`/`longitude` en **chaînes**, `timestamp` Unix, anomalies exclues, pages
+  `page`/`per_page` (≤ 10 000) et en-tête `X-Total-Pages`.
+- Les points créés en masse (`POST /api/v1/points`, format Overland) **n'ont pas de pays** : l'upsert saute le
+  callback `set_country`. Pour tester, l'attribuer en SQL (`UPDATE points SET country_id = c.id FROM countries c
+WHERE ST_Covers(c.geom, lonlat::geometry)`) ; les applications (OwnTracks, Overland) passent, elles, par le modèle.
+- Distance du jour : absente de l'API (`stats.daily_distance` n'est pas exposé) ; l'intégration la somme depuis
+  les points du jour (grand cercle, sauts > 1 200 km/h écartés). On ne relit les points que si le dernier point a
+  changé.
+- Déclencheurs : « nouveau pays » seulement pour un pays présent dans les 30 derniers jours (un ancien historique
+  importé est enregistré sans rien annoncer) ; « plus de position » une fois par seuil et par silence, état
+  persistant dans `/data`. Première lecture d'un utilisateur = référence silencieuse.
+- Vie privée (consigne du brief) : aucune coordonnée, aucun nom de lieu ni de pays dans les journaux, même en
+  debug (`test/logs.test.js`) ; coordonnées publiées seulement avec `show_position`.
+- Pas de `scene_actions` : les valeurs sont déjà des fonctionnalités de l'appareil, lisibles par les scènes.
+- Banc Docker : `freikin/dawarich` + `postgis/postgis:17-3.5-alpine` + `redis:7.4-alpine`, `APPLICATION_HOSTS`
+  doit contenir le nom d'hôte utilisé, mot de passe utilisateur ≥ 12 caractères
+  (`User.create!` en `bin/rails runner`).

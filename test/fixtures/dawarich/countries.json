@@ -1,0 +1,7 @@
+{
+  "countries": [
+    { "iso_a3": "BEL", "name": "Belgium" },
+    { "iso_a3": "ESP", "name": "Spain" },
+    { "iso_a3": "FRA", "name": "France" }
+  ]
+}

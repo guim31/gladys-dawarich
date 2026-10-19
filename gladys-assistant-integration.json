@@ -1,177 +1,390 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Dawarich",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Your Dawarich location history in Gladys: distances, countries, trackers gone silent.",
+    "fr": "Votre historique Dawarich dans Gladys : distances, pays visités, suivi interrompu.",
+    "de": "Dein Dawarich-Verlauf in Gladys: Strecken, besuchte Länder, verstummte Tracker.",
+    "es": "Su historial de Dawarich en Gladys: distancias, países visitados, seguimiento detenido."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-dawarich:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-dawarich/main/cover.png",
+  "categories": ["services"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Connect Dawarich",
+        "fr": "Connecter Dawarich",
+        "de": "Dawarich verbinden",
+        "es": "Conectar Dawarich"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Enter the address of your Dawarich server (port 3000 by default) and the API key shown on its Account page. The integration only reads: distances, countries and cities visited, and when the last position arrived. Nothing is sent to Dawarich.",
+        "fr": "Saisissez l'adresse de votre serveur Dawarich (port 3000 par défaut) et la clé d'API affichée sur sa page Account. L'intégration ne fait que lire : distances, pays et villes visités, heure de la dernière position. Rien n'est envoyé à Dawarich.",
+        "de": "Gib die Adresse deines Dawarich-Servers (standardmäßig Port 3000) und den API-Schlüssel von seiner Seite Account ein. Die Integration liest nur: Strecken, besuchte Länder und Städte, Zeitpunkt der letzten Position. Nichts wird an Dawarich gesendet.",
+        "es": "Introduzca la dirección de su servidor Dawarich (puerto 3000 por defecto) y la clave de API que aparece en su página Account. La integración solo lee: distancias, países y ciudades visitados, hora de la última posición. No se envía nada a Dawarich."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://dawarich.app/docs/",
+          "label": {
+            "en": "Dawarich documentation",
+            "fr": "Documentation de Dawarich",
+            "de": "Dawarich-Dokumentation",
+            "es": "Documentación de Dawarich"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "key": "url",
+      "type": "string",
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "label": {
+        "en": "Dawarich address",
+        "fr": "Adresse de Dawarich",
+        "de": "Dawarich-Adresse",
+        "es": "Dirección de Dawarich"
+      },
+      "description": {
+        "en": "IP address or name, with the port if it is not 3000, or the full address behind a reverse proxy.",
+        "fr": "Adresse IP ou nom, avec le port s'il n'est pas 3000, ou l'adresse complète derrière un proxy inverse.",
+        "de": "IP-Adresse oder Name, mit dem Port, wenn er nicht 3000 ist, oder die volle Adresse hinter einem Reverse Proxy.",
+        "es": "Dirección IP o nombre, con el puerto si no es 3000, o la dirección completa detrás de un proxy inverso."
+      },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50:3000",
+        "fr": "ex. 192.168.1.50:3000",
+        "de": "z. B. 192.168.1.50:3000",
+        "es": "p. ej. 192.168.1.50:3000"
+      }
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
+      "key": "api_key",
+      "type": "secret",
       "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "label": {
+        "en": "API key",
+        "fr": "Clé d'API",
+        "de": "API-Schlüssel",
+        "es": "Clave de API"
+      },
+      "description": {
+        "en": "Shown on the Account page of Dawarich (menu of your account).",
+        "fr": "Affichée sur la page Account de Dawarich (menu de votre compte).",
+        "de": "Steht auf der Seite Account von Dawarich (Menü deines Kontos).",
+        "es": "Aparece en la página Account de Dawarich (menú de su cuenta)."
+      }
     },
     {
-      "key": "unit",
+      "key": "refresh_minutes",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
       "required": false,
-      "default": "celsius",
+      "default": "15",
+      "label": {
+        "en": "Read Dawarich every",
+        "fr": "Lire Dawarich toutes les",
+        "de": "Dawarich abfragen alle",
+        "es": "Leer Dawarich cada"
+      },
+      "description": {
+        "en": "Dawarich recomputes its monthly and yearly statistics once an hour.",
+        "fr": "Dawarich recalcule ses statistiques mensuelles et annuelles une fois par heure.",
+        "de": "Dawarich berechnet seine Monats- und Jahresstatistiken einmal pro Stunde neu.",
+        "es": "Dawarich recalcula sus estadísticas mensuales y anuales una vez por hora."
+      },
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "5",
+          "label": {
+            "en": "5 minutes",
+            "fr": "5 minutes",
+            "de": "5 Minuten",
+            "es": "5 minutos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 minutes",
+            "fr": "15 minutes",
+            "de": "15 Minuten",
+            "es": "15 minutos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 minutes",
+            "fr": "30 minutes",
+            "de": "30 Minuten",
+            "es": "30 minutos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "60 minutes",
+            "fr": "60 minutes",
+            "de": "60 Minuten",
+            "es": "60 minutos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
-      "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
-      },
+      "key": "show_position",
+      "type": "boolean",
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": false,
+      "label": {
+        "en": "Show the coordinates of the last position",
+        "fr": "Afficher les coordonnées de la dernière position",
+        "de": "Koordinaten der letzten Position anzeigen",
+        "es": "Mostrar las coordenadas de la última posición"
+      },
+      "description": {
+        "en": "Off by default: adds a feature with the latitude and longitude of the newest point. Never written to the logs.",
+        "fr": "Désactivé par défaut : ajoute une fonctionnalité avec la latitude et la longitude du dernier point. Jamais écrites dans les journaux.",
+        "de": "Standardmäßig aus: fügt eine Funktion mit Breiten- und Längengrad des neuesten Punkts hinzu. Nie in die Logs geschrieben.",
+        "es": "Desactivado por defecto: añade una función con la latitud y la longitud del último punto. Nunca se escriben en los registros."
+      }
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "required": false,
+      "default": "fr",
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
+      "description": {
+        "en": "Language of the feature names, country names and scene texts.",
+        "fr": "Langue des noms de fonctionnalités, des noms de pays et des textes de scène.",
+        "de": "Sprache der Funktionsnamen, Ländernamen und Szenentexte.",
+        "es": "Idioma de los nombres de funciones, de países y de los textos de escena."
+      },
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "new_country",
+      "label": {
+        "en": "New country visited",
+        "fr": "Nouveau pays visité",
+        "de": "Neues Land besucht",
+        "es": "Nuevo país visitado"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A position arrives from a country never visited before in Dawarich.",
+        "fr": "Une position arrive d'un pays jamais visité auparavant dans Dawarich.",
+        "de": "Eine Position kommt aus einem Land, das in Dawarich noch nie besucht wurde.",
+        "es": "Llega una posición de un país nunca visitado antes en Dawarich."
+      },
+      "variables": [
+        {
+          "key": "country",
+          "type": "string",
+          "label": {
+            "en": "Country",
+            "fr": "Pays",
+            "de": "Land",
+            "es": "País"
+          }
+        },
+        {
+          "key": "country_code",
+          "type": "string",
+          "label": {
+            "en": "Country code (ISO, 3 letters)",
+            "fr": "Code du pays (ISO, 3 lettres)",
+            "de": "Ländercode (ISO, 3 Buchstaben)",
+            "es": "Código del país (ISO, 3 letras)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "tracking_stopped",
+      "label": {
+        "en": "No position received",
+        "fr": "Plus de position reçue",
+        "de": "Keine Position mehr empfangen",
+        "es": "No se reciben posiciones"
+      },
+      "description": {
+        "en": "No new position for the chosen time: the tracking app may have stopped.",
+        "fr": "Aucune nouvelle position depuis la durée choisie : l'application de suivi s'est peut-être arrêtée.",
+        "de": "Keine neue Position seit der gewählten Dauer: Die Tracking-App ist vielleicht gestoppt.",
+        "es": "Ninguna posición nueva durante el tiempo elegido: puede que la aplicación de seguimiento se haya detenido."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "hours",
           "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "required": true,
+          "label": {
+            "en": "For at least",
+            "fr": "Depuis au moins",
+            "de": "Seit mindestens",
+            "es": "Desde hace al menos"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "1",
+              "label": {
+                "en": "1 hour",
+                "fr": "1 heure",
+                "de": "1 Stunde",
+                "es": "1 hora"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "2 hours",
+                "fr": "2 heures",
+                "de": "2 Stunden",
+                "es": "2 horas"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "3 hours",
+                "fr": "3 heures",
+                "de": "3 Stunden",
+                "es": "3 horas"
+              }
+            },
+            {
+              "value": "6",
+              "label": {
+                "en": "6 hours",
+                "fr": "6 heures",
+                "de": "6 Stunden",
+                "es": "6 horas"
+              }
+            },
+            {
+              "value": "12",
+              "label": {
+                "en": "12 hours",
+                "fr": "12 heures",
+                "de": "12 Stunden",
+                "es": "12 horas"
+              }
+            },
+            {
+              "value": "24",
+              "label": {
+                "en": "24 hours",
+                "fr": "24 heures",
+                "de": "24 Stunden",
+                "es": "24 horas"
+              }
+            },
+            {
+              "value": "48",
+              "label": {
+                "en": "48 hours",
+                "fr": "48 heures",
+                "de": "48 Stunden",
+                "es": "48 horas"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "last_position",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
-        }
-      ]
-    }
-  ],
-  "scene_actions": [
-    {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
-      },
-      "timeout_seconds": 15,
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
-      "outputs": [
-        {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Time of the last position",
+            "fr": "Heure de la dernière position",
+            "de": "Zeit der letzten Position",
+            "es": "Hora de la última posición"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "travel",
+      "label": {
+        "en": "Travels",
+        "fr": "Déplacements",
+        "de": "Unterwegs",
+        "es": "Desplazamientos"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Distances of the day, month and year, countries visited, last position.",
+        "fr": "Distances du jour, du mois et de l'année, pays visités, dernière position.",
+        "de": "Strecken von Tag, Monat und Jahr, besuchte Länder, letzte Position.",
+        "es": "Distancias del día, del mes y del año, países visitados, última posición."
+      },
+      "icon": "map"
     }
   ]
 }

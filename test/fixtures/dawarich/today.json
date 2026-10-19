@@ -1,0 +1,47 @@
+[
+  {
+    "id": 93,
+    "latitude": "43.6047",
+    "longitude": "1.4442",
+    "timestamp": 1792405513,
+    "velocity": "20",
+    "country_name": "France",
+    "tracker_id": "test-phone"
+  },
+  {
+    "id": 90,
+    "latitude": "43.60621",
+    "longitude": "1.442727",
+    "timestamp": 1792405633,
+    "velocity": "20",
+    "country_name": "France",
+    "tracker_id": "test-phone"
+  },
+  {
+    "id": 89,
+    "latitude": "43.60772",
+    "longitude": "1.441253",
+    "timestamp": 1792405753,
+    "velocity": "20",
+    "country_name": "France",
+    "tracker_id": "test-phone"
+  },
+  {
+    "id": 88,
+    "latitude": "43.60923",
+    "longitude": "1.43978",
+    "timestamp": 1792405873,
+    "velocity": "20",
+    "country_name": "France",
+    "tracker_id": "test-phone"
+  },
+  {
+    "id": 87,
+    "latitude": "43.61074",
+    "longitude": "1.438307",
+    "timestamp": 1792405993,
+    "velocity": "20",
+    "country_name": "France",
+    "tracker_id": "test-phone"
+  }
+]

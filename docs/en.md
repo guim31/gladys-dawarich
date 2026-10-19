@@ -1,61 +1,119 @@
-# Demo Devices Template
+# Dawarich
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Connect Gladys to [Dawarich](https://dawarich.app), the self-hosted location
+history (an alternative to Google Timeline): follow the distances you travel
+and the countries you visit, and get warned when your phone stops sending its
+position. Everything stays on your local network: Gladys only reads your
+Dawarich server, and sends nothing to it.
 
-## What you get
+Tested against a real Dawarich 1.16.0 server (the official Docker image) with
+simulated trips, not with a phone on the road: feedback welcome on the Gladys
+forum. For live GPS tracking, see the Traccar integration: this one is about
+history and statistics.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+## Prerequisites
+
+- Gladys Assistant 5.1 or later.
+- A Dawarich server reachable from the Gladys machine, on port 3000 by
+  default, or through a reverse proxy, and a tracking app sending it positions
+  (Dawarich app, OwnTracks, Overland…).
+- The API key of your Dawarich user: open the menu of your account →
+  **Account**, the key is shown there.
 
 ## Configuration
 
 1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+2. In **Dawarich address**, enter the IP address of the server, for example
+   `192.168.1.50`: the integration then uses port 3000. Add a port if yours
+   differs (`192.168.1.50:3100`). Behind a reverse proxy, enter the full
+   address (`https://dawarich.example.org`).
+3. Paste the **API key**.
+4. **Read Dawarich every**: 5, 15 (default), 30 or 60 minutes.
+5. **Show the coordinates of the last position**: off by default. When on,
+   the device gets one more feature with the latitude and longitude of the
+   newest point.
+6. **Language of the names** sets the feature names (fixed when the device is
+   added), the country names and the texts of the scenes. French by default.
+7. Save, then use **Test the connection**: it shows the number of points and of
+   countries visited.
+8. In the **Discovery** tab, add the **Dawarich** device.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+## Device
 
-## Actions
+**Dawarich** (one device for the user of the API key):
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+| Feature                     | Value                                                    |
+| --------------------------- | -------------------------------------------------------- |
+| Distance today              | km travelled since midnight, summed from today's points  |
+| Distance this month         | km of the month, from the statistics of Dawarich         |
+| Distance this year          | km of the year, from the statistics of Dawarich          |
+| Total distance              | km since your first point                                |
+| Countries visited           | countries of all your points                             |
+| Cities visited              | cities, as counted by Dawarich (needs reverse geocoding) |
+| Points recorded             | number of positions stored in Dawarich                   |
+| Last position received      | date and time of the newest point, or "None"             |
+| Last position (coordinates) | "latitude, longitude", only with the option of step 5    |
 
-## Scenes
+Distances and counters keep their history: a chart shows the kilometres of each
+day or month.
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+## Dashboard widget
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+**Travels**: four tiles (today, this month, this year, countries), how long ago
+the last position arrived (green, yellow after one hour, red after a day) and
+the countries of the last 30 days. It needs no setting.
 
-## Dashboard
+## Scene triggers
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+- **New country visited**: a position arrives from a country never visited
+  before in Dawarich. Variables: **Country** (in the language of the
+  integration) and **Country code** (ISO, 3 letters, for example `ITA`). The
+  countries already in Dawarich when you install the integration, and those of
+  an old history you import later, are not announced.
+- **No position received**: no new point for at least the chosen time (1, 2,
+  3, 6, 12, 24 or 48 hours). The tracking app may have stopped, the phone may
+  be off or out of network. It fires once per silence and per duration; a new
+  point starts over. Variable: **Time of the last position**.
+
+## Scene examples
+
+- **Holiday mode**: when "New country visited" fires, send yourself a message
+  "Welcome to {{triggerEvent.data.country}}!" and switch the house to its holiday scene.
+- **Tracking app stopped**: when "No position received" fires for 6 hours,
+  send a message "Dawarich has received nothing since {{triggerEvent.data.last_position}}: check
+  the tracking app on your phone."
+- **Monthly report**: on the 1st of the month at 9:00, send a message with the
+  value of "Distance this month" before it starts over.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"Dawarich refused the API key"**: copy the key again from the **Account**
+  page. A key changes when you regenerate it.
+- **"Dawarich does not answer"**: check the address and the port from the
+  Gladys machine (`http://<address>:3000/api/v1/health` answers
+  `{"status":"ok"}`), and that Dawarich is running.
+- **"This address does not answer like Dawarich"**: the address leads to
+  another service or to a login page of a reverse proxy.
+- **The month or the year does not move**: Dawarich recomputes these
+  statistics once an hour, in the background (Sidekiq). "Distance today" is
+  computed by the integration and follows each read.
+- **Cities stay at 0**: reverse geocoding is off in Dawarich (Photon,
+  Geoapify… in its settings). The countries come from the borders and work
+  without it; **Test the connection** says when it is off.
+- Logs: in the **Logs** tab of the integration. More details with
+  `LOG_LEVEL=debug`. Coordinates and place names are never written there.
+
+## Limits
+
+- Read only: the integration never writes to Dawarich. It cannot send the
+  positions of other Gladys devices to Dawarich (an integration does not read
+  the devices of the others).
+- Kilometres of the month, year and total are whole numbers, as Dawarich gives
+  them; "Distance today" is rounded to 0.1 km and leaves out GPS jumps faster
+  than a plane.
+- The triggers react at the next read: up to the chosen interval late.
+- One Dawarich user per integration: the one of the API key.
+- The coordinates option exposes your position to every Gladys user: keep it
+  off if you do not need it.
+- Not affiliated with Dawarich. Developed against the real server, without a
+  phone on the road: feedback welcome.
