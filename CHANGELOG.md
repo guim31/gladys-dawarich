@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-19
+
 ### Added
 
 - A **Dawarich** device for the user of the API key: distance of the day, the
@@ -23,3 +25,6 @@ the notes of the version's GitHub Release.
 - **Test the connection** action, which also tells when reverse geocoding is
   off in Dawarich.
 - English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-dawarich/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-dawarich/releases/tag/v1.0.0
