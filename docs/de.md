@@ -88,8 +88,8 @@ Tag) und die Länder der letzten 30 Tage. Keine Einstellung nötig.
   auslöst, schick die Nachricht „Dawarich hat seit
   {{triggerEvent.data.last_position}} nichts empfangen: Prüfe die Tracking-App
   auf deinem Handy.“
-- **Monatsbilanz**: Am 1. des Monats um 9:00 schick eine Nachricht mit dem Wert
-  von „Strecke diesen Monat“, bevor er bei null beginnt.
+- **Wochenbilanz**: Jeden Sonntag um 20:00 schick eine Nachricht mit den Werten
+  von „Strecke diesen Monat“ und „Besuchte Länder“.
 
 ## Fehlerbehebung
 

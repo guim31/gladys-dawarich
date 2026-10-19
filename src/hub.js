@@ -225,12 +225,18 @@ export class Hub {
             ? previous.today
             : trackLength(await client.points(dayStart, nowSeconds + 60));
       }
-      const recent = moved
-        ? await client.countries(nowSeconds - RECENT_DAYS * 86_400, FAR_FUTURE)
-        : previous.recent;
-      if (!this.allCountries || now - this.allCountriesAt >= this.timings.countriesFullRead) {
+      const fullRead =
+        !this.allCountries || now - this.allCountriesAt >= this.timings.countriesFullRead;
+      if (fullRead) {
         all = await client.countries(0, FAR_FUTURE);
       }
+      // Read after the full list, in the same cycle: a country the points
+      // got late (geocoding, a buffered upload) is told apart from an old
+      // import by two lists taken at the same time.
+      const recent =
+        moved || fullRead
+          ? await client.countries(nowSeconds - RECENT_DAYS * 86_400, FAR_FUTURE)
+          : previous.recent;
       snapshot = {
         counters: summarizeStats(stats, new Date(now)),
         today,

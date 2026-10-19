@@ -20,9 +20,9 @@
 // -----------------------------------------------------------------------------
 
 export const DEFAULT_TIMEOUT = 20_000;
-// A whole day of a phone reporting every few seconds stays under this.
-export const MAX_DAY_POINTS = 20_000;
-const PAGE_SIZE = 2_000;
+// A whole day of a tracker reporting every second stays under this.
+export const MAX_DAY_POINTS = 100_000;
+const PAGE_SIZE = 5_000;
 
 export class DawarichError extends Error {
   /**
@@ -70,7 +70,8 @@ export class DawarichClient {
       if (err?.name === 'TimeoutError' || err?.name === 'AbortError') {
         throw new DawarichError('timeout', `No answer from Dawarich within ${this.timeout} ms`);
       }
-      const cause = err?.cause?.code ?? err?.cause?.message ?? err?.message ?? 'error';
+      // The code only: a message may quote a header, so the API key.
+      const cause = err?.cause?.code ?? err?.code ?? err?.name ?? 'error';
       throw new DawarichError('unreachable', `Dawarich unreachable (${cause})`);
     }
     if (!response.ok) {

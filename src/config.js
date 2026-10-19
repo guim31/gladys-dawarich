@@ -73,8 +73,11 @@ export function normalizeConfig(raw = {}) {
   return {
     url,
     urlInvalid: typed !== '' && url === null,
-    // A key pasted with its scheme ("Bearer ...") works as well.
-    apiKey: text(source.api_key).replace(/^bearer\s+/i, ''),
+    // A key pasted with its scheme ("Bearer ...") or cut by line breaks works
+    // as well (Dawarich keys are hexadecimal).
+    apiKey: text(source.api_key)
+      .replace(/^bearer\s+/i, '')
+      .replace(/\s+/g, ''),
     refreshMinutes: Number(
       REFRESH_MINUTES.includes(refresh) ? refresh : DEFAULT_CONFIG.refresh_minutes,
     ),

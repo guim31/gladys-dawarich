@@ -129,6 +129,32 @@ test('first read is a silent baseline; a new country and silences fire once', as
   assert.deepEqual(store.data.silence.fired, []);
 });
 
+test('a country the points get late is announced, not taken for an import', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  // A buffered upload: points of yesterday in Italy, older than the newest
+  // point, so the newest point does not change.
+  world.server.state.countries.push({
+    iso_a3: 'ITA',
+    name: 'Italy',
+    at: Math.floor(world.clock.now / 1000) - 86_400,
+  });
+  world.clock.now += HOUR;
+  await world.hub.refresh();
+  assert.deepEqual(
+    world.fake.sceneEvents.filter((e) => e.key === 'new_country').map((e) => e.data.country_code),
+    ['ITA'],
+  );
+});
+
+test('an API key cut by a line break still works, and never reaches the logs', async (t) => {
+  const world = await createWorld({
+    config: { url: HOST, api_key: `${API_KEY.slice(0, 20)}\n${API_KEY.slice(20)}` },
+  });
+  t.after(() => world.app.stop());
+  assert.equal(world.fake.connectionStatus.connected, true);
+});
+
 test('a restart neither announces again nor forgets what was seen', async (t) => {
   const store = new MemoryStore();
   const first = await createWorld({ store });
@@ -257,19 +283,19 @@ test('the widget before the first answer', async (t) => {
 test('the client pages through a long day', async () => {
   const server = createDawarich();
   const start = Math.floor(NOW / 1000) - 10 * 3600;
-  server.state.points = Array.from({ length: 4500 }, (_, i) => ({
+  server.state.points = Array.from({ length: 12_000 }, (_, i) => ({
     id: i,
     latitude: '43.6',
     longitude: '1.4',
-    timestamp: start + i * 5,
+    timestamp: start + i * 2,
   }));
   const client = new DawarichClient({ url: HOST, apiKey: API_KEY, fetch: server.fetch });
   const points = await client.points(start, start + 86_400);
-  assert.equal(points.length, 4500);
+  assert.equal(points.length, 12_000);
   assert.equal(
     server.state.requests.filter((r) => r.startsWith('/api/v1/points')).length,
     3,
-    '3 pages of 2000',
+    '3 pages of 5000',
   );
   assert.equal((await client.me()).id, USER);
 });

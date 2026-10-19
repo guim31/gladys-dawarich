@@ -82,8 +82,8 @@ the countries of the last 30 days. It needs no setting.
 - **Tracking app stopped**: when "No position received" fires for 6 hours,
   send a message "Dawarich has received nothing since {{triggerEvent.data.last_position}}: check
   the tracking app on your phone."
-- **Monthly report**: on the 1st of the month at 9:00, send a message with the
-  value of "Distance this month" before it starts over.
+- **Weekly report**: every Sunday at 20:00, send a message with the values of
+  "Distance this month" and "Countries visited".
 
 ## Troubleshooting
 

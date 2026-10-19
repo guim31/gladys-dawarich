@@ -85,8 +85,8 @@ un jour) et les pays des 30 derniers jours. Aucun réglage.
   déclenche pour 6 heures, envoyez le message « Dawarich n'a rien reçu depuis
   {{triggerEvent.data.last_position}} : vérifiez l'application de suivi du
   téléphone. »
-- **Bilan du mois** : le 1er du mois à 9 h, envoyez un message avec la valeur
-  de « Distance ce mois-ci » avant qu'elle ne reparte de zéro.
+- **Bilan de la semaine** : chaque dimanche à 20 h, envoyez un message avec les
+  valeurs de « Distance ce mois-ci » et « Pays visités ».
 
 ## Dépannage
 

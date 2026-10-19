@@ -86,8 +86,8 @@ día) y los países de los últimos 30 días. No requiere ajustes.
   posiciones» para 6 horas, envíe el mensaje «Dawarich no ha recibido nada desde
   {{triggerEvent.data.last_position}}: compruebe la aplicación de seguimiento
   del teléfono.»
-- **Balance mensual**: el día 1 del mes a las 9:00, envíe un mensaje con el
-  valor de «Distancia este mes» antes de que vuelva a cero.
+- **Balance semanal**: cada domingo a las 20:00, envíe un mensaje con los
+  valores de «Distancia este mes» y «Países visitados».
 
 ## Solución de problemas
 
