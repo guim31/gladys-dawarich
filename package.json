@@ -1,6 +1,6 @@
 {
   "name": "gladys-dawarich",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Dawarich (self-hosted location history) integration for Gladys Assistant.",
   "type": "module",
